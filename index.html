@@ -6,12 +6,12 @@
     <title>Умный Переводчик</title>
     
     <!-- PWA метатеги -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/smart-translator/manifest.json">
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Переводчик">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="/smart-translator/icon-192.png">
     
     <style>
         * {
@@ -257,7 +257,6 @@
             font-weight: 600;
         }
 
-        /* Анимации */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -273,7 +272,6 @@
             animation: slideIn 0.6s ease-out;
         }
 
-        /* ОФФЛАЙН СТАТУС */
         body.offline {
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
         }
@@ -283,7 +281,6 @@
             color: #e17055;
         }
 
-        /* ТЕМНАЯ ТЕМА */
         body.dark-theme {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
@@ -346,7 +343,6 @@
             color: #8a94db;
         }
 
-        /* Десктопная версия */
         @media (min-width: 768px) {
             body {
                 padding: 20px;
@@ -385,7 +381,6 @@
             }
         }
 
-        /* Большие телефоны */
         @media (max-width: 400px) {
             .container {
                 padding: 20px;
@@ -417,7 +412,6 @@
             60%, 100% { content: '...'; }
         }
 
-        /* Улучшения для PWA */
         @media (display-mode: standalone) {
             body {
                 padding: 10px;
@@ -490,7 +484,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('/smart-translator/sw.js')
                     .then(function(registration) {
                         console.log('ServiceWorker зарегистрирован');
                     })
@@ -499,6 +493,11 @@
                     });
             });
         }
+        
+        // Автоматическое предложение установки
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA можно установить');
+        });
     </script>
 </body>
 </html>

@@ -410,3 +410,41 @@ function handleSwipe() {
         elements.clearBtn.click();
     }
 }
+// Добавь этот код в КОНЕЦ renderer.js файла:
+
+// PWA функциональность
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/smart-translator/sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker зарегистрирован для scope: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker регистрация не удалась: ', error);
+            });
+    });
+}
+
+// Автоматическое предложение установки
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('PWA готов к установке');
+    
+    // Можно показать свою кнопку установки
+    // showInstallPromotion();
+});
+
+// Функция для показа установки
+function showInstallPromotion() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('Пользователь установил PWA');
+            }
+            deferredPrompt = null;
+        });
+    }
+}
