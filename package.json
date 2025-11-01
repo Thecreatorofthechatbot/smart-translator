@@ -1,0 +1,16 @@
+{
+    "name": "smart-translator",
+    "version": "1.0.0",
+    "description": "Умный Переводчик",
+    "main": "main.js",
+    "scripts": {
+      "start": "electron .",
+      "dev": "electron . --enable-logging"
+    },
+    "keywords": ["translator", "electron"],
+    "author": "Твое имя",
+    "license": "MIT",
+    "devDependencies": {
+      "electron": "^22.0.0"
+    }
+  }

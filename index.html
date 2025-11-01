@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Умный Переводчик</title>
+    
+    <!-- PWA метатеги -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Переводчик">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            min-height: 100vh;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .app-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .app-subtitle {
+            color: #666;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .textarea-container {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 18px;
+            border: 2px solid #e8ecef;
+            border-radius: 16px;
+            font-size: 16px;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: white;
+            color: #333;
+            font-family: inherit;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .char-counter {
+            position: absolute;
+            bottom: 10px;
+            right: 12px;
+            font-size: 11px;
+            color: #999;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        .controls-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .controls-row.full-width {
+            flex-direction: column;
+        }
+
+        select, button {
+            padding: 14px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        select {
+            background: white;
+            border: 2px solid #e8ecef;
+            color: #333;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 8px;
+            padding-right: 35px;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .primary-btn:active {
+            transform: translateY(1px);
+        }
+
+        .secondary-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e8ecef;
+        }
+
+        .secondary-btn:active {
+            transform: translateY(1px);
+        }
+
+        .theme-btn {
+            background: #495057;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            padding: 60px 20px 20px 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+            min-height: 100px;
+            border: 2px solid #e8ecef;
+            white-space: pre-wrap;
+            transition: all 0.3s ease;
+            color: #333;
+            position: relative;
+        }
+
+        .result-label {
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            min-width: 90px;
+            text-align: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .copy-btn:active {
+            transform: translateY(1px);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            color: #2d5016;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .language-badge {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Анимации */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: slideIn 0.6s ease-out;
+        }
+
+        /* ОФФЛАЙН СТАТУС */
+        body.offline {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        body.offline .status-bar {
+            background: #ffeaa7;
+            color: #e17055;
+        }
+
+        /* ТЕМНАЯ ТЕМА */
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-theme .container {
+            background: rgba(37, 37, 50, 0.98);
+            color: #ffffff;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-theme .app-title {
+            background: linear-gradient(135deg, #8a94db, #9d6fd3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        body.dark-theme .app-subtitle {
+            color: #b0b0b0;
+        }
+
+        body.dark-theme textarea {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #ffffff;
+        }
+
+        body.dark-theme .char-counter {
+            background: #2d3748;
+            color: #a0aec0;
+        }
+
+        body.dark-theme select {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #ffffff;
+        }
+
+        body.dark-theme .result-card {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #ffffff;
+        }
+
+        body.dark-theme .secondary-btn {
+            background: #4a5568;
+            color: #ffffff;
+            border-color: #718096;
+        }
+
+        body.dark-theme .status-bar {
+            background: #2d5016;
+            color: #a3d9a5;
+        }
+
+        body.dark-theme .copy-btn {
+            background: linear-gradient(135deg, rgba(138, 148, 219, 0.15), rgba(157, 111, 211, 0.15));
+            border-color: rgba(138, 148, 219, 0.4);
+            color: #8a94db;
+        }
+
+        /* Десктопная версия */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .container {
+                max-width: 500px;
+                padding: 30px;
+            }
+            
+            .app-title {
+                font-size: 2.2em;
+            }
+            
+            .controls-grid {
+                display: grid;
+                grid-template-columns: 1fr auto auto;
+                gap: 10px;
+            }
+            
+            .controls-row {
+                display: contents;
+            }
+            
+            textarea {
+                height: 120px;
+            }
+            
+            .result-card {
+                padding: 50px 25px 25px 25px;
+            }
+            
+            .copy-btn {
+                min-width: 110px;
+                padding: 10px 16px;
+            }
+        }
+
+        /* Большие телефоны */
+        @media (max-width: 400px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .app-title {
+                font-size: 1.6em;
+            }
+            
+            select, button {
+                padding: 12px 14px;
+                font-size: 14px;
+                min-height: 46px;
+            }
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+        
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* Улучшения для PWA */
+        @media (display-mode: standalone) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1 class="app-title">🧠 Умный Переводчик</h1>
+            <p class="app-subtitle">Переводите мгновенно онлайн и оффлайн</p>
+        </header>
+        
+        <div class="input-group">
+            <div class="textarea-container">
+                <textarea id="inputText" placeholder="Введите текст для перевода...">привет</textarea>
+                <div class="char-counter">
+                    <span id="charCount">0</span>/1000
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls-grid">
+            <div class="controls-row full-width">
+                <select id="languageSelect">
+                    <option value="auto">🌍 Автоопределение</option>
+                    <option value="en-ru">🇬🇧 → 🇷🇺 Английский → Русский</option>
+                    <option value="ru-en">🇷🇺 → 🇬🇧 Русский → Английский</option>
+                </select>
+            </div>
+            
+            <div class="controls-row">
+                <button id="translateBtn" class="primary-btn">🚀 Перевести</button>
+                <button id="clearBtn" class="secondary-btn">🗑️ Очистить</button>
+            </div>
+        </div>
+
+        <div class="result-card">
+            <div class="result-label">Перевод</div>
+            <button class="copy-btn" id="copyBtn">📋 Копировать</button>
+            <div id="outputText"></div>
+        </div>
+        
+        <div class="status-bar">
+            <span id="status">🌐 Готов к работе</span>
+            <div class="language-badge" id="languageBadge">Авто</div>
+        </div>
+
+        <div class="controls-grid">
+            <div class="controls-row">
+                <button id="themeBtn" class="theme-btn">
+                    <span class="theme-icon">🌙</span>
+                    <span>Тёмная</span>
+                </button>
+                <button id="speakBtn" class="secondary-btn">🔊 Озвучить</button>
+                <button id="swapBtn" class="secondary-btn">🔄 Обмен</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+    
+    <!-- Service Worker для PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker зарегистрирован');
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker ошибка:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
