@@ -1,45 +1,34 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
-
-function createWindow() {
-  const win = new BrowserWindow({
-    width: 550,
-    height: 700,
-    minWidth: 500,
-    minHeight: 600,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true
-    },
-    icon: path.join(__dirname, 'assets/icon.png'), // опционально
-    title: 'Умный Переводчик',
-    show: false
+// Регистрация Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(registration) {
+        console.log('Service Worker registered with scope:', registration.scope);
+        
+        // Проверяем есть ли новая версия SW
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          console.log('New Service Worker found!');
+          
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('New content available - please refresh!');
+              // Можно показать кнопку "Обновить" пользователю
+            }
+          });
+        });
+      })
+      .catch(function(error) {
+        console.log('Service Worker registration failed:', error);
+      });
   });
-
-  win.loadFile('index.html');
-
-  // Показываем окно когда готово
-  win.once('ready-to-show', () => {
-    win.show();
+  
+  // Проверка обновлений при фокусе на странице
+  window.addEventListener('focus', () => {
+    navigator.serviceWorker.getRegistration().then(registration => {
+      if (registration) {
+        registration.update();
+      }
+    });
   });
-
-  // Открываем DevTools в development режиме
-  if (process.env.NODE_ENV === 'development') {
-    win.webContents.openDevTools();
-  }
 }
-
-app.whenReady().then(createWindow);
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
