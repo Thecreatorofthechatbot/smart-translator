@@ -415,7 +415,7 @@ function handleSwipe() {
 // PWA функциональность
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/smart-translator/sw.js')
+        navigator.serviceWorker.register('./service-worker.js')
             .then(function(registration) {
                 console.log('ServiceWorker зарегистрирован для scope: ', registration.scope);
             })
