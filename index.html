@@ -480,13 +480,12 @@
 
     <script src="renderer.js"></script>
     
-    <!-- Service Worker для PWA -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/smart-translator/sw.js')
                     .then(function(registration) {
-                        console.log('ServiceWorker зарегистрирован');
+                        console.log('ServiceWorker зарегистрирован для scope:', registration.scope);
                     })
                     .catch(function(error) {
                         console.log('ServiceWorker ошибка:', error);
@@ -494,9 +493,12 @@
             });
         }
         
-        // Автоматическое предложение установки
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('PWA можно установить');
+        window.addEventListener('online', function() {
+            document.getElementById('status').textContent = '🌐 Онлайн';
+        });
+        
+        window.addEventListener('offline', function() {
+            document.getElementById('status').textContent = '📴 Оффлайн';
         });
     </script>
 </body>
