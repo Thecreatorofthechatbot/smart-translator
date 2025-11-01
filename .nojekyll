@@ -1,4 +1,1 @@
-echo "" > .nojekyll
-git add .nojekyll
-git commit -m "add: .nojekyll to bypass Jekyll processing"
-git push origin main
+"" 
